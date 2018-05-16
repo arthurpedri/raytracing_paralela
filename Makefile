@@ -3,7 +3,7 @@
 all: outro
 
 outro:
-	gcc ray.c -o ray -lm
+	gcc ray.c -o ray -lm -O3
 
 clean:
 	$(RM) ray *.o

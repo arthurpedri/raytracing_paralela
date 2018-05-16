@@ -189,44 +189,100 @@ void saveppm(char *filename, unsigned char *img, int width, int height){
 	fclose(f);
 }
 
-int main() {
+int main(int argc, char const *argv[])
+{
+  if (argc < 3){
+    printf("./ray <variacao (1 ou 2)> <tamanho (1, 2, 4)>\n");
+    return 0;
+  }
+  int HEIGHT = 4500; // 4500 6188 9000
+  int WIDTH = 8000;
+  if(argv[2][0] == '1'){
+      HEIGHT = 4500; // 4500 6188 9000
+      WIDTH = 8000; // 8000 11000 16000
+  } else if(argv[2][0] == '2'){
+      HEIGHT = 6188; // 4500 6188 9000
+      WIDTH = 11000; // 8000 11000 16000
+  } else if(argv[2][0] == '4'){
+      HEIGHT = 9000; // 4500 6188 9000
+      WIDTH = 16000; // 8000 11000 16000
+  } else {
+      printf("./ray <variacao (1 ou 2)> <tamanho (1, 2, 4)>\n");
+      return 0;
+  }
+    int N_SPHERES = 18;
 
-  const int HEIGHT = 1000;
-  const int WIDTH = 1800;
-  const int N_SPHERES = 10;
-  const int N_LIGHTS = 5;
-  const int N_MATERIALS = 7;
-  unsigned char img[3*WIDTH*HEIGHT];
+  
+  int N_LIGHTS = 6;
+  int N_MATERIALS = 9;
+  // unsigned char img[3*WIDTH*HEIGHT];
+  unsigned char *img;
+  img = malloc(sizeof(unsigned char)*3*WIDTH*HEIGHT);
 
-  sphere spheres[N_SPHERES];
-  add_sphere(&spheres[0], 200, 300, 0, 100, 0);
-  add_sphere(&spheres[1], 400, 400, 0, 100, 1);
-  add_sphere(&spheres[2], 500, 140, 0, 100, 2);
-  add_sphere(&spheres[3], 600, 100, 0, 100, 3);
-  add_sphere(&spheres[4], 100, 800, 0, 100, 4);
-  add_sphere(&spheres[5], 750, 900, 0, 100, 5);
-  add_sphere(&spheres[6], 750, 100, 0, 100, 6);
-  add_sphere(&spheres[7], 200, 900, 0, 100, 0);
-  add_sphere(&spheres[8], 250, 550, 0, 100, 4);
-  add_sphere(&spheres[9], 500, 500, 0, 100, 3);
+  sphere *spheres;
+  spheres = malloc(sizeof(sphere)*N_SPHERES);
 
-  material materials[N_MATERIALS];
+  if(argv[1][0] == '1'){
+        add_sphere(&spheres[0], 200, 300, 0, 100, 0);
+        add_sphere(&spheres[1], 400, 400, 0, 100, 1);
+        add_sphere(&spheres[2], 500, 140, 0, 100, 2);
+        add_sphere(&spheres[3], 600, 100, 0, 100, 3);
+        add_sphere(&spheres[4], 100, 800, 0, 100, 4);
+        add_sphere(&spheres[5], 750, 900, 0, 100, 5);
+        add_sphere(&spheres[6], 750, 100, 0, 100, 6);
+        add_sphere(&spheres[7], 200, 900, 0, 100, 0);
+        add_sphere(&spheres[8], 250, 550, 0, 100, 4);
+        add_sphere(&spheres[10], 1500, 600, -30, 80, 6);
+        add_sphere(&spheres[11], 1700, 800, 10, 130, 5);
+        add_sphere(&spheres[12], 6000, 3000, 10, 500, 6);
+        add_sphere(&spheres[13], 5000, 3000, 10, 500, 8);
+        add_sphere(&spheres[14], 3000, 3000, 10, 500, 3);
+        add_sphere(&spheres[15], 2400, 1300, 10, 200, 1);
+        add_sphere(&spheres[16], 2800, 1000, 20, 300, 3);
+        add_sphere(&spheres[17], 9000, 1000, 0, 1000, 7);
+    } else if(argv[1][0] == '2'){
+        N_SPHERES = 15;
+        add_sphere(&spheres[0], 500, 2300, 0, 100, 0);
+        add_sphere(&spheres[1], 700, 2400, 0, 100, 1);
+        add_sphere(&spheres[2], 1400, 2140, 0, 100, 2);
+        add_sphere(&spheres[3], 900, 2100, 0, 100, 3);
+        add_sphere(&spheres[4], 9000, 1000, 0, 1000, 7);
+        add_sphere(&spheres[5], 1050, 2900, 0, 100, 5);
+        add_sphere(&spheres[6], 4000, 6100, 3000, 3000, 0); // grande
+        add_sphere(&spheres[7], 500, 2900, 0, 100, 0);
+        add_sphere(&spheres[8], 550, 2550, 0, 100, 4);
+        add_sphere(&spheres[9], 2800, 1000, 20, 300, 3);
+        add_sphere(&spheres[10], 1500, 2800, -30, 80, 6);
+        add_sphere(&spheres[11], 1700, 3000, 10, 130, 5);
+        add_sphere(&spheres[12], 6000, 3000, 10, 500, 6);
+        add_sphere(&spheres[13], 5000, 3000, 10, 500, 8);
+        add_sphere(&spheres[14], 2400, 1300, 10, 200, 1);
+    } else {
+      printf("./ray <variacao (1 ou 2)> <tamanho (1, 2, 4)>\n");
+      return 0;
+  }
+
+  material *materials;
+  materials = malloc(sizeof(material)*N_MATERIALS);
   add_material(&materials[0], 1, 0, 0, 0.2); //vermelho
   add_material(&materials[1], 0, 1, 0, 0.5); //verde
   add_material(&materials[2], 0, 0, 1, 0.9); //azul
-  add_material(&materials[3], 1, 1, 0, 0.2); //amarelo
-  add_material(&materials[4], 1, 0, 1, 0.5); //rosa
+  add_material(&materials[3], 1, 1, 0, 0.9); //amarelo
+  add_material(&materials[4], 1, 0, 1, 0.7); //rosa
   add_material(&materials[5], 0, 1, 1, 0.5); //ciano
   add_material(&materials[6], 1, 1, 1, 1); //branco
+  add_material(&materials[7], 0.18, 0.02, 0.23, 0.65); //roxo
+  add_material(&materials[8], 0.1, 0.1, 0.1, 0.1); // preto
 
 
-  light lights[N_LIGHTS];
-
-  add_light(&lights[0], 0, 240, -100, 1, 1, 1);
+  light *lights;
+  lights = malloc(sizeof(light)*N_LIGHTS);
+  add_light(&lights[0], 0, 3240, -100, 1, 1, 1);
   add_light(&lights[1], 3200, 3000, -1000, 0.6, 0.7, 1);
   add_light(&lights[2], 600, 0, -100, 0.3, 0.5, 1);
   add_light(&lights[3], 1200, 0, -100, 1, 0.5, 0.2);
   add_light(&lights[4], -300, 1200, 100, 1, 1, 1);
+  add_light(&lights[5], 6000, 10, -100, 1, 1, 1);
 
 
   ray r;
@@ -303,7 +359,7 @@ int main() {
 
         level++;
 
-      }while((coef > 0.0f) && (level < 15));
+      }while((coef > 0.0f) && (level < 30));
 
 
 
