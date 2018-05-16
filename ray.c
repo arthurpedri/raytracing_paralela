@@ -173,24 +173,35 @@ void saveppm(char *filename, unsigned char *img, int width, int height){
 
 int main() {
 
-  const int HEIGHT = 600;
-  const int WIDTH = 800;
+  const int HEIGHT = 1080;
+  const int WIDTH = 1920;
+  const int N_SPHERES = 10;
+  const int N_LIGHTS = 5;
+  const int N_MATERIALS = 5;
   unsigned char img[3*WIDTH*HEIGHT];
 
-  sphere spheres[3];
-  add_sphere(&spheres[0], 200, 300, 0, 100, 0);
+  sphere spheres[N_SPHERES];
+  add_sphere(&spheres[0], 200, 300, 0, 120, 0);
   add_sphere(&spheres[1], 400, 400, 0, 100, 1);
   add_sphere(&spheres[2], 500, 140, 0, 100, 2);
+  add_sphere(&spheres[3], 900, 400, 0, 130, 4);
+  add_sphere(&spheres[4], 700, 140, 0, 100, 3);
+  add_sphere(&spheres[5], 1600, 600, 0, 100, 3);
+  add_sphere(&spheres[6], 1300, 700, 0, 150, 4);
+  add_sphere(&spheres[7], 50, 900, 0, 30, 0);
+  add_sphere(&spheres[8], 200, 1000, 0, 45, 2);
+  add_sphere(&spheres[9], 500, 900, 0, 145, 3);
 
-  material materials[3];
+
+  material materials[N_MATERIALS];
 	materials[0].diffuse.red = 1;
 	materials[0].diffuse.green = 0;
 	materials[0].diffuse.blue = 0;
 	materials[0].reflection = 0.2;
 
-	materials[1].diffuse.red = 0;
+	materials[1].diffuse.red = 0.1;
 	materials[1].diffuse.green = 1;
-	materials[1].diffuse.blue = 0;
+	materials[1].diffuse.blue = 0.1;
 	materials[1].reflection = 0.5;
 
 	materials[2].diffuse.red = 0;
@@ -198,7 +209,17 @@ int main() {
 	materials[2].diffuse.blue = 1;
 	materials[2].reflection = 0.9;
 
-  light lights[3];
+  materials[3].diffuse.red = 0.86;
+  materials[3].diffuse.green = 0.24;
+  materials[3].diffuse.blue = 0.91;
+  materials[3].reflection = 0.9;
+
+  materials[4].diffuse.red = 0.9;
+  materials[4].diffuse.green = 0.89;
+  materials[4].diffuse.blue = 0;
+  materials[4].reflection = 0.3;
+
+  light lights[N_LIGHTS];
 
 	lights[0].pos.x = 0;
 	lights[0].pos.y = 240;
@@ -221,6 +242,20 @@ int main() {
 	lights[2].intensity.green = 0.5;
 	lights[2].intensity.blue = 1;
 
+  lights[3].pos.x = 1200;
+  lights[3].pos.y = 0;
+  lights[3].pos.z = -100;
+  lights[3].intensity.red = 1;
+  lights[3].intensity.green = 0.5;
+  lights[3].intensity.blue = 0.2;
+
+  lights[3].pos.x = -300;
+  lights[3].pos.y = 1200;
+  lights[3].pos.z = 100;
+  lights[3].intensity.red = 1;
+  lights[3].intensity.green = 1;
+  lights[3].intensity.blue = 1;
+
   ray r;
 
   for (int y = 0; y < HEIGHT; ++y) {
@@ -238,7 +273,7 @@ int main() {
         double t = 20000.0f;
         int currentSphere = -1;
         //procura a esfera mais proxima desse pixel
-        for(int i = 0; i < 3; i++){
+        for(int i = 0; i < N_SPHERES; i++){
           if(intersect(&spheres[i], &r, &t))
             currentSphere = i;
         }
@@ -264,7 +299,7 @@ int main() {
         material currentMat = materials[spheres[currentSphere].material];
 
         //calcula o valor da luz nesse pixel
-        for(int j = 0; j < 3; j++){
+        for(int j = 0; j < N_LIGHTS; j++){
           light currentLight = lights[j];
           vector dist;
           dist = sub_vec(&currentLight.pos, &pi);
