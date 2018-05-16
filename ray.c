@@ -22,6 +22,7 @@ typedef struct sphere{
 typedef struct colour {
   double red, green, blue;
 }colour;
+
 typedef struct material{
 	colour diffuse;
 	double reflection;
@@ -33,6 +34,12 @@ typedef struct light{
   colour intensity;
 } light;
 
+void add_material(material *m, double r, double g, double b, double reflec){
+  m->diffuse.red = r;
+  m->diffuse.green = g;
+  m->diffuse.blue = b;
+  m->reflection = reflec;
+}
 
 void add_colour(colour *c, double r, double g, double b){
   c->red = r;
@@ -173,32 +180,35 @@ void saveppm(char *filename, unsigned char *img, int width, int height){
 
 int main() {
 
-  const int HEIGHT = 600;
-  const int WIDTH = 800;
+  const int HEIGHT = 1000;
+  const int WIDTH = 1800;
   unsigned char img[3*WIDTH*HEIGHT];
 
-  sphere spheres[3];
+  sphere spheres[10];
   add_sphere(&spheres[0], 200, 300, 0, 100, 0);
   add_sphere(&spheres[1], 400, 400, 0, 100, 1);
   add_sphere(&spheres[2], 500, 140, 0, 100, 2);
+  add_sphere(&spheres[3], 600, 100, 0, 100, 3);
+  add_sphere(&spheres[4], 100, 800, 0, 100, 4);
+  add_sphere(&spheres[5], 750, 900, 0, 100, 5);
+  add_sphere(&spheres[6], 750, 100, 0, 100, 6);
+  add_sphere(&spheres[7], 200, 900, 0, 100, 0);
+  add_sphere(&spheres[8], 250, 550, 0, 100, 4);
+  add_sphere(&spheres[9], 500, 500, 0, 100, 3);
 
-  material materials[3];
-	materials[0].diffuse.red = 1;
-	materials[0].diffuse.green = 0;
-	materials[0].diffuse.blue = 0;
-	materials[0].reflection = 0.2;
+  material materials[7];
+  add_material(&materials[0], 1, 0, 0, 0.2); //vermelho
+  add_material(&materials[1], 0, 1, 0, 0.5); //verde
+  add_material(&materials[2], 0, 0, 1, 0.9); //azul
+  add_material(&materials[3], 1, 1, 0, 0.2); //amarelo
+  add_material(&materials[4], 1, 0, 1, 0.5); //rosa
+  add_material(&materials[5], 0, 1, 1, 0.5); //ciano
+  add_material(&materials[6], 1, 1, 1, 1); //branco
 
-	materials[1].diffuse.red = 0;
-	materials[1].diffuse.green = 1;
-	materials[1].diffuse.blue = 0;
-	materials[1].reflection = 0.5;
 
-	materials[2].diffuse.red = 0;
-	materials[2].diffuse.green = 0;
-	materials[2].diffuse.blue = 1;
-	materials[2].reflection = 0.9;
+  light lights[6];
 
-  light lights[3];
+  add_light(&lights[0], 0, 240, -100, 1, 1, 1);
 
 	lights[0].pos.x = 0;
 	lights[0].pos.y = 240;
@@ -221,6 +231,27 @@ int main() {
 	lights[2].intensity.green = 0.5;
 	lights[2].intensity.blue = 1;
 
+  lights[3].pos.x = -600;
+	lights[3].pos.y = -100;
+	lights[3].pos.z = -100;
+	lights[3].intensity.red = 1;
+	lights[3].intensity.green = 0.2;
+	lights[3].intensity.blue = 0.6;
+
+  lights[4].pos.x = -2100;
+	lights[4].pos.y = 0;
+	lights[4].pos.z = -100;
+	lights[4].intensity.red = 1;
+	lights[4].intensity.green = 1;
+	lights[4].intensity.blue = 0.6;
+
+  lights[5].pos.x = 800;
+	lights[5].pos.y = 50;
+	lights[5].pos.z = -100;
+	lights[5].intensity.red = 1;
+	lights[5].intensity.green = 0.2;
+	lights[5].intensity.blue = 1;
+
   ray r;
 
   for (int y = 0; y < HEIGHT; ++y) {
@@ -238,7 +269,7 @@ int main() {
         double t = 20000.0f;
         int currentSphere = -1;
         //procura a esfera mais proxima desse pixel
-        for(int i = 0; i < 3; i++){
+        for(int i = 0; i < 10; i++){
           if(intersect(&spheres[i], &r, &t))
             currentSphere = i;
         }
@@ -264,7 +295,7 @@ int main() {
         material currentMat = materials[spheres[currentSphere].material];
 
         //calcula o valor da luz nesse pixel
-        for(int j = 0; j < 3; j++){
+        for(int j = 0; j < 6; j++){
           light currentLight = lights[j];
           vector dist;
           dist = sub_vec(&currentLight.pos, &pi);
