@@ -24,7 +24,7 @@ typedef struct colour {
 }colour;
 typedef struct material{
 	colour diffuse;
-	float reflection;
+	double reflection;
 }material;
 
 
@@ -40,48 +40,45 @@ void add_colour(colour *c, double r, double g, double b){
   c->blue = b;
 }
 // Atribiui is valores para o vetor passado.
-void add_vec(vector *v, double x, double y, double z){
+void inic_vec(vector *v, double x, double y, double z){
   v->x = x;
   v->y = y;
   v->z = z;
 }
 //Soma os dois vetores
-vector * sum_vec(vector *v, vector *w){
-  vector *u;
-  u = malloc(sizeof(vector));
-  u->x = v->x + w->x;
-  u->y = v->y + w->y;
-  u->z = v->z + w->z;
+vector soma_vec(vector *v, vector *w){
+  vector u;
+
+  u.x = v->x + w->x;
+  u.y = v->y + w->y;
+  u.z = v->z + w->z;
   return u;
 }
 
 //Subtrai os dois vetores
-vector * sub_vec(vector *v, vector *w){
-  vector *u;
-  u = malloc(sizeof(vector));
-  u->x = v->x - w->x;
-  u->y = v->y - w->y;
-  u->z = v->z - w->z;
+vector sub_vec(vector *v, vector *w){
+  vector u;
+  u.x = v->x - w->x;
+  u.y = v->y - w->y;
+  u.z = v->z - w->z;
   return u;
 }
 
 //Multiplica o vetor por um real
-vector * mult_vec(vector *v, double w){
-  vector *u;
-  u = malloc(sizeof(vector));
-  u->x = v->x * w;
-  u->y = v->y * w;
-  u->z = v->z * w;
+vector mult_vec(vector *v, double w){
+  vector u;
+  u.x = v->x * w;
+  u.y = v->y * w;
+  u.z = v->z * w;
   return u;
 }
 
 //Divide o vetor por um real
-vector * div_vec(vector *v, double w){
-  vector *u;
-  u = malloc(sizeof(vector));
-  u->x = v->x / w;
-  u->y = v->y / w;
-  u->z = v->z / w;
+vector div_vec(vector *v, double w){
+  vector u;
+  u.x = v->x / w;
+  u.y = v->y / w;
+  u.z = v->z / w;
   return u;
 }
 
@@ -106,45 +103,41 @@ double dot(vector *v, vector *w) {
 
 
 void add_ray(ray *r, double o_x, double o_y, double o_z, double d_x, double d_y, double d_z){
-  add_vec(&(r->o), o_x, o_y, o_z);
-  add_vec(&(r->d), d_x, d_y, d_z);
+  inic_vec(&(r->o), o_x, o_y, o_z);
+  inic_vec(&(r->d), d_x, d_y, d_z);
 }
 
 
 
 void add_sphere(sphere *s, double x, double y, double z, double r, int m){
-  add_vec(&(s->c), x, y, z);
+  inic_vec(&(s->c), x, y, z);
   s->r = r;
   s->material = m;
 }
 
-vector * get_normal_sphere(sphere *s, vector *pi) {
-  vector *aux;
+vector get_normal_sphere(sphere *s, vector *pi) {
+  vector aux;
   aux = sub_vec(pi, &(s->c));
-  vector *aux2;
-  aux2 = div_vec(aux, s->r);
-  free (aux);
+  vector aux2;
+  aux2 = div_vec(&aux, s->r);
   return aux2;
 }
 
 int intersect(sphere *s, ray *r, double *t) {
-  vector *o;
-  o = malloc(sizeof(vector));
-  add_vec(o, (r->o).x, (r->o).y, (r->o).z);
-  vector *d;
-  d = malloc(sizeof(vector));
-  add_vec(d, r->d.x, r->d.y, r->d.z);
-  vector *oc;
-  oc = sub_vec(o, &(s->c));
-  double b = 2 * dot(oc, d);
-  double c = dot(oc, oc) - (s->r)*(s->r);
+
+  vector o;
+  inic_vec(&o, (r->o).x, (r->o).y, (r->o).z);
+  vector d;
+  inic_vec(&d, r->d.x, r->d.y, r->d.z);
+  vector oc;
+  oc = sub_vec(&o, &(s->c));
+  double b = 2 * dot(&oc, &d);
+  double c = dot(&oc, &oc) - (s->r)*(s->r);
   double disc = b*b - 4 * c;
-  free (o);
-  free(d);
   if (disc < 1e-4) return 0;
   disc = sqrt(disc);
-  double t0 = -b - disc;
-  double t1 = -b + disc;
+  double t0 = (-b - disc)/2;
+  double t1 = (-b + disc)/2;
   if(t0 > t1)
     t0 = t1;
 
@@ -184,23 +177,10 @@ int main() {
   const int WIDTH = 800;
   unsigned char img[3*WIDTH*HEIGHT];
 
-  // vector *white;
-  // white = malloc(sizeof(vector));
-  // add_vec(white, 255, 255, 255);
-  //
-  // vector *black;
-  // black = malloc(sizeof(vector));
-  // add_vec(black, 0, 0, 0);
-  //
-  // vector *red;
-  // red = malloc(sizeof(vector));
-  // add_vec(red, 255, 0, 0);
-
-  printf("oi");
   sphere spheres[3];
-  add_sphere(&spheres[0], 200, 300, 50, 50, 0);
-  add_sphere(&spheres[1], WIDTH*0.1, HEIGHT*0.1, 50, 50, 1);
-  add_sphere(&spheres[2], WIDTH*0.8, HEIGHT*0.8, 50, 50, 2);
+  add_sphere(&spheres[0], 200, 300, 0, 100, 0);
+  add_sphere(&spheres[1], 400, 400, 0, 100, 1);
+  add_sphere(&spheres[2], 500, 140, 0, 100, 2);
 
   material materials[3];
 	materials[0].diffuse.red = 1;
@@ -241,13 +221,8 @@ int main() {
 	lights[2].intensity.green = 0.5;
 	lights[2].intensity.blue = 1;
 
-  // sphere light;
-  // add_sphere(&light, 0, 0, 50, 1);
+  ray r;
 
-  // vector *pix_col;
-  // pix_col = malloc(sizeof(vector));
-  ray *r;
-  r = malloc(sizeof(ray));
   for (int y = 0; y < HEIGHT; ++y) {
     for (int x = 0; x < WIDTH; ++x) {
       // copy_vec(black, pix_col);
@@ -257,49 +232,52 @@ int main() {
       int level = 0;
       double coef = 1.0;
 
-      add_ray(r,x,y,0,0,0,1);
+      add_ray(&r,x,y,-2000,0,0,1);
 
       do{
         double t = 20000.0f;
         int currentSphere = -1;
         //procura a esfera mais proxima desse pixel
         for(int i = 0; i < 3; i++){
-          if(intersect(&spheres[i], r, &t))
+          if(intersect(&spheres[i], &r, &t))
             currentSphere = i;
         }
         if (currentSphere == -1) break;
 
         //criando o ray atual do pixel
-        vector *pi;
-        vector *aux;
-        aux = mult_vec(&(r->d), t);
-        pi = sum_vec(&(r->o), aux);
+        vector pi;
+        vector aux;
+        aux = mult_vec(&(r.d), t);
+        pi = soma_vec(&(r.o), &aux);
 
         /* Find the normal for this new vector at the point of intersection */
-        vector *L;
-        L = sub_vec(&(spheres[currentSphere].c), pi);
-        vector *N;
-        N = get_normal_sphere(&spheres[currentSphere], pi);
-        normalize(L);
-        normalize(N);
-        double dt = dot(L, N);
+        vector L;
+        L = sub_vec(&pi, &(spheres[currentSphere].c));
+        double temp = dot(&L, &L);
+        if(temp == 0) break;
+
+        temp = 1.0f / sqrt(temp);
+
+        vector N;
+        N = mult_vec(&L, temp);
         //
         material currentMat = materials[spheres[currentSphere].material];
 
         //calcula o valor da luz nesse pixel
         for(int j = 0; j < 3; j++){
           light currentLight = lights[j];
-          vector *dist;
-          dist = sub_vec(&currentLight.pos, pi);
-					if(dot(N, dist) <= 0.0f) continue;
-					float t = sqrtf(dot(dist,dist));
+          vector dist;
+          dist = sub_vec(&currentLight.pos, &pi);
+					if(dot(&N, &dist) <= 0.0f) continue;
+					double t = sqrt(dot(&dist,&dist));
 					if(t <= 0.0f) continue;
 
-					vector *lightRay;
-					lightRay = mult_vec(dist, (1/t));
+					ray lightRay;
+          lightRay.o = pi;
+					lightRay.d = mult_vec(&dist, (1/t));
           /* Lambert diffusion */
-          double lambert = dot(lightRay, N) * coef;
-          // float lambert = 0.0;
+          double lambert = dot(&lightRay.d, &N) * coef;
+          // double lambert = 0.0;
           red += lambert * currentLight.intensity.red * currentMat.diffuse.red;
           green += lambert * currentLight.intensity.green * currentMat.diffuse.green;
           blue += lambert * currentLight.intensity.blue * currentMat.diffuse.blue;
@@ -309,11 +287,11 @@ int main() {
         coef *= currentMat.reflection;
 
         /* The reflected ray start and direction */
-        r->o = *pi;
-        float reflect = 2.0f * dot(&r->d, N);
-        vector *tmp;
-        tmp = mult_vec(N, reflect);
-        r->d = *sub_vec(&r->d, tmp);
+        r.o = pi;
+        double reflect = 2.0f * dot(&r.d, &N);
+        vector tmp;
+        tmp = mult_vec(&N, reflect);
+        r.d = sub_vec(&r.d, &tmp);
 
         level++;
 
@@ -332,7 +310,7 @@ int main() {
       //   vector *pi;
       //   vector *aux;
       //   aux = mult_vec(&(r->d), t);
-      //   pi = sum_vec(&(r->o), aux);
+      //   pi = soma_vec(&(r->o), aux);
       //   vector *L;
       //   L = sub_vec(&(light.c), pi);
       //   vector *N;
@@ -345,7 +323,7 @@ int main() {
       //   vector *aux2;
       //   aux2 = mult_vec(white, dt);
       //   vector *aux3;
-      //   aux3 = sum_vec(red, aux2);
+      //   aux3 = soma_vec(red, aux2);
       //   vector *aux4;
       //   aux4 = mult_vec(aux3, 0.5);
       //   clamp255(aux4);
