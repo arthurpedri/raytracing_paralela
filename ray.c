@@ -34,6 +34,17 @@ typedef struct light{
   colour intensity;
 } light;
 
+
+void add_light(light *l, double x, double y, double z, double r, double g, double b){
+  l->pos.x = x;
+  l->pos.y = y;
+  l->pos.z = z;
+  l->intensity.red = r;
+  l->intensity.green = g;
+  l->intensity.blue = b;
+
+}
+
 void add_material(material *m, double r, double g, double b, double reflec){
   m->diffuse.red = r;
   m->diffuse.green = g;
@@ -182,9 +193,12 @@ int main() {
 
   const int HEIGHT = 1000;
   const int WIDTH = 1800;
+  const int N_SPHERES = 10;
+  const int N_LIGHTS = 5;
+  const int N_MATERIALS = 7;
   unsigned char img[3*WIDTH*HEIGHT];
 
-  sphere spheres[10];
+  sphere spheres[N_SPHERES];
   add_sphere(&spheres[0], 200, 300, 0, 100, 0);
   add_sphere(&spheres[1], 400, 400, 0, 100, 1);
   add_sphere(&spheres[2], 500, 140, 0, 100, 2);
@@ -196,7 +210,7 @@ int main() {
   add_sphere(&spheres[8], 250, 550, 0, 100, 4);
   add_sphere(&spheres[9], 500, 500, 0, 100, 3);
 
-  material materials[7];
+  material materials[N_MATERIALS];
   add_material(&materials[0], 1, 0, 0, 0.2); //vermelho
   add_material(&materials[1], 0, 1, 0, 0.5); //verde
   add_material(&materials[2], 0, 0, 1, 0.9); //azul
@@ -206,51 +220,14 @@ int main() {
   add_material(&materials[6], 1, 1, 1, 1); //branco
 
 
-  light lights[6];
+  light lights[N_LIGHTS];
 
   add_light(&lights[0], 0, 240, -100, 1, 1, 1);
+  add_light(&lights[1], 3200, 3000, -1000, 0.6, 0.7, 1);
+  add_light(&lights[2], 600, 0, -100, 0.3, 0.5, 1);
+  add_light(&lights[3], 1200, 0, -100, 1, 0.5, 0.2);
+  add_light(&lights[4], -300, 1200, 100, 1, 1, 1);
 
-	lights[0].pos.x = 0;
-	lights[0].pos.y = 240;
-	lights[0].pos.z = -100;
-	lights[0].intensity.red = 1;
-	lights[0].intensity.green = 1;
-	lights[0].intensity.blue = 1;
-
-	lights[1].pos.x = 3200;
-	lights[1].pos.y = 3000;
-	lights[1].pos.z = -1000;
-	lights[1].intensity.red = 0.6;
-	lights[1].intensity.green = 0.7;
-	lights[1].intensity.blue = 1;
-
-	lights[2].pos.x = 600;
-	lights[2].pos.y = 0;
-	lights[2].pos.z = -100;
-	lights[2].intensity.red = 0.3;
-	lights[2].intensity.green = 0.5;
-	lights[2].intensity.blue = 1;
-
-  lights[3].pos.x = -600;
-	lights[3].pos.y = -100;
-	lights[3].pos.z = -100;
-	lights[3].intensity.red = 1;
-	lights[3].intensity.green = 0.2;
-	lights[3].intensity.blue = 0.6;
-
-  lights[4].pos.x = -2100;
-	lights[4].pos.y = 0;
-	lights[4].pos.z = -100;
-	lights[4].intensity.red = 1;
-	lights[4].intensity.green = 1;
-	lights[4].intensity.blue = 0.6;
-
-  lights[5].pos.x = 800;
-	lights[5].pos.y = 50;
-	lights[5].pos.z = -100;
-	lights[5].intensity.red = 1;
-	lights[5].intensity.green = 0.2;
-	lights[5].intensity.blue = 1;
 
   ray r;
 
@@ -269,7 +246,7 @@ int main() {
         double t = 20000.0f;
         int currentSphere = -1;
         //procura a esfera mais proxima desse pixel
-        for(int i = 0; i < 10; i++){
+        for(int i = 0; i < N_SPHERES; i++){
           if(intersect(&spheres[i], &r, &t))
             currentSphere = i;
         }
@@ -295,7 +272,7 @@ int main() {
         material currentMat = materials[spheres[currentSphere].material];
 
         //calcula o valor da luz nesse pixel
-        for(int j = 0; j < 6; j++){
+        for(int j = 0; j < N_LIGHTS; j++){
           light currentLight = lights[j];
           vector dist;
           dist = sub_vec(&currentLight.pos, &pi);
