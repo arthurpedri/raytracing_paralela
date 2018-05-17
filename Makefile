@@ -3,7 +3,8 @@
 all: outro
 
 outro:
-	gcc ray.c -o ray -lm -O3
+	gcc ray_paralel.c -o ray_p -lm -O3 -fopenmp
+	gcc ray_paralel.c -o ray -lm -O3
 
 clean:
-	$(RM) ray *.o
+	rm ray ray_p image.ppm 

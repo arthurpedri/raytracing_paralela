@@ -5,10 +5,8 @@
 #include <omp.h>
 
 #ifndef NTHREADS
-#define NTHREADS 8
+#define NTHREADS 4
 #endif
-
-
 
 #define min(a,b) (((a) < (b)) ? (a) : (b))
 
@@ -41,7 +39,7 @@ typedef struct light{
   colour intensity;
 } light;
 
-
+// Atribui valores para a luz
 void add_light(light *l, double x, double y, double z, double r, double g, double b){
   l->pos.x = x;
   l->pos.y = y;
@@ -52,6 +50,7 @@ void add_light(light *l, double x, double y, double z, double r, double g, doubl
 
 }
 
+// Atribui valores para o material
 void add_material(material *m, double r, double g, double b, double reflec){
   m->diffuse.red = r;
   m->diffuse.green = g;
@@ -59,6 +58,7 @@ void add_material(material *m, double r, double g, double b, double reflec){
   m->reflection = reflec;
 }
 
+// Atribui Valores para a cor
 void add_colour(colour *c, double r, double g, double b){
   c->red = r;
   c->green = g;
@@ -73,7 +73,6 @@ void inic_vec(vector *v, double x, double y, double z){
 //Soma os dois vetores
 vector soma_vec(vector *v, vector *w){
   vector u;
-
   u.x = v->x + w->x;
   u.y = v->y + w->y;
   u.z = v->z + w->z;
@@ -107,6 +106,7 @@ vector div_vec(vector *v, double w){
   return u;
 }
 
+// Normaliza o Vetor
 void normalize(vector *v) {
   double mg = sqrt((v->x)*(v->x) + (v->y)*(v->y) + (v->z)*(v->z));
   v->x = v->x/mg;
@@ -114,6 +114,7 @@ void normalize(vector *v) {
   v->z = v->z/mg;
 }
 
+// Copia o conteúdo de um vetor orig para o dest
 void copy_vec(vector *orig, vector *dest){
   dest->x = orig->x;
   dest->y = orig->y;
@@ -121,33 +122,28 @@ void copy_vec(vector *orig, vector *dest){
 }
 
 
-
+// Cálculo do Produto escalar
 double dot(vector *v, vector *w) {
   return (v->x*w->x + v->y*w->y + v->z*w->z);
 }
 
-
+// Atribui valores aos vetores do Ray
 void add_ray(ray *r, double o_x, double o_y, double o_z, double d_x, double d_y, double d_z){
   inic_vec(&(r->o), o_x, o_y, o_z);
   inic_vec(&(r->d), d_x, d_y, d_z);
 }
 
 
-
+// Atribui valores para a Esfera
 void add_sphere(sphere *s, double x, double y, double z, double r, int m){
   inic_vec(&(s->c), x, y, z);
   s->r = r;
   s->material = m;
 }
 
-vector get_normal_sphere(sphere *s, vector *pi) {
-  vector aux;
-  aux = sub_vec(pi, &(s->c));
-  vector aux2;
-  aux2 = div_vec(&aux, s->r);
-  return aux2;
-}
 
+// Retorna se um ray intercepta uma esfera ou não. 
+// Se sim, o valor double *t, é atualizado para a distância da esfera
 int intersect(sphere *s, ray *r, double *t) {
 
   vector o;
@@ -173,26 +169,17 @@ int intersect(sphere *s, ray *r, double *t) {
     return 0;
 }
 
-void clamp255(vector *v) {
-  v->x = (v->x > 255) ? 255 : (v->x < 0) ? 0 : v->x;
-  v->y = (v->y > 255) ? 255 : (v->y < 0) ? 0 : v->y;
-  v->z = (v->z > 255) ? 255 : (v->z < 0) ? 0 : v->z;
-}
 
+// Função que escreve todo o conteũdo renderizado no arquivo
 void saveppm(char *filename, unsigned char *img, int width, int height){
-	/* FILE pointer */
 	FILE *f;
 
-	/* Open file for writing */
 	f = fopen(filename, "wb");
 
-	/* PPM header info, including the size of the image */
 	fprintf(f, "P6 %d %d %d\n", width, height, 255);
 
-	/* Write the image data to the file - remember 3 byte per pixel */
 	fwrite(img, 3, width*height, f);
 
-	/* Make sure you close the file */
 	fclose(f);
 }
 
@@ -202,17 +189,19 @@ int main(int argc, char const *argv[])
     printf("./ray <variacao (1 ou 2)> <tamanho (1, 2, 4)>\n");
     return 0;
   }
-  int HEIGHT = 4500; // 4500 6188 9000
+  int HEIGHT = 4500; 
   int WIDTH = 8000;
+
+  // Baseado na entrada define o número de pixels
   if(argv[2][0] == '1'){
-      HEIGHT = 4500; // 4500 6188 9000
-      WIDTH = 8000; // 8000 11000 16000
+      HEIGHT = 4500; 
+      WIDTH = 8000; 
   } else if(argv[2][0] == '2'){
-      HEIGHT = 6188; // 4500 6188 9000
-      WIDTH = 11000; // 8000 11000 16000
+      HEIGHT = 6188; 
+      WIDTH = 11000; 
   } else if(argv[2][0] == '4'){
-      HEIGHT = 9000; // 4500 6188 9000
-      WIDTH = 16000; // 8000 11000 16000
+      HEIGHT = 9000; 
+      WIDTH = 16000; 
   } else {
       printf("./ray <variacao (1 ou 2)> <tamanho (1, 2, 4)>\n");
       return 0;
@@ -229,6 +218,7 @@ int main(int argc, char const *argv[])
   sphere *spheres;
   spheres = malloc(sizeof(sphere)*N_SPHERES);
 
+  // Com base na entrada define o setup de esferas da imagem
   if(argv[1][0] == '1'){
         add_sphere(&spheres[0], 200, 300, 0, 100, 0);
         add_sphere(&spheres[1], 400, 400, 0, 100, 1);
@@ -269,6 +259,7 @@ int main(int argc, char const *argv[])
       return 0;
   }
 
+  // Predefinição de materias
   material *materials;
   materials = malloc(sizeof(material)*N_MATERIALS);
   add_material(&materials[0], 1, 0, 0, 0.2); //vermelho
@@ -284,6 +275,7 @@ int main(int argc, char const *argv[])
 
   light *lights;
   lights = malloc(sizeof(light)*N_LIGHTS);
+  // Craiação das luzes
   add_light(&lights[0], 0, 3240, -100, 1, 1, 1);
   add_light(&lights[1], 3200, 3000, -1000, 0.6, 0.7, 1);
   add_light(&lights[2], 600, 0, -100, 0.3, 0.5, 1);
@@ -296,33 +288,33 @@ int main(int argc, char const *argv[])
   #pragma omp parallel for num_threads(NTHREADS) private(r) schedule(dynamic)
   for (int y = 0; y < HEIGHT; ++y) {
     for (int x = 0; x < WIDTH; ++x) {
-      int ID = omp_get_thread_num();
-      // copy_vec(black, pix_col);
+
       double red = 0;
       double green = 0;
       double blue = 0;
       int level = 0;
       double coef = 1.0;
-
+      // Como x, y são as coordenadas da imagem, faz com que o raio passe por um pixel.
       add_ray(&r,x,y,-2000,0,0,1);
 
       do{
         double t = 20000.0f;
         int currentSphere = -1;
-        //procura a esfera mais proxima desse pixel
+        // Procura a esfera mais proxima desse pixel
         for(int i = 0; i < N_SPHERES; i++){
           if(intersect(&spheres[i], &r, &t))
             currentSphere = i;
         }
         if (currentSphere == -1) break;
 
-        //criando o ray atual do pixel
+        // Ponto de Intercecção
         vector pi;
         vector aux;
         aux = mult_vec(&(r.d), t);
         pi = soma_vec(&(r.o), &aux);
 
         /* Find the normal for this new vector at the point of intersection */
+        // Encontra a normal desse novo vetor no ponto de intercecção
         vector L;
         L = sub_vec(&pi, &(spheres[currentSphere].c));
         double temp = dot(&L, &L);
@@ -332,7 +324,6 @@ int main(int argc, char const *argv[])
 
         vector N;
         N = mult_vec(&L, temp);
-        //
         material currentMat = materials[spheres[currentSphere].material];
 
         //calcula o valor da luz nesse pixel
@@ -347,18 +338,18 @@ int main(int argc, char const *argv[])
 					ray lightRay;
           lightRay.o = pi;
 					lightRay.d = mult_vec(&dist, (1/t));
-          /* Lambert diffusion */
+          
+          // Difusão de Lambert
           double lambert = dot(&lightRay.d, &N) * coef;
-          // double lambert = 0.0;
           red += lambert * currentLight.intensity.red * currentMat.diffuse.red;
           green += lambert * currentLight.intensity.green * currentMat.diffuse.green;
           blue += lambert * currentLight.intensity.blue * currentMat.diffuse.blue;
         }
 
-        /* Iterate over the reflection */
+        // Iterar pelo numero de reflexões possíveis
         coef *= currentMat.reflection;
 
-        /* The reflected ray start and direction */
+        // Direção do inicio e direção do Ray refletido
         r.o = pi;
         double reflect = 2.0f * dot(&r.d, &N);
         vector tmp;
@@ -368,7 +359,7 @@ int main(int argc, char const *argv[])
         level++;
 
       }while((coef > 0.0f) && (level < 30));
-      // printf("%d\n", (x + y*WIDTH));
+      // Insere cor no Pixel
       img[(x + y*WIDTH)*3 + 0] = (unsigned char)min(red*255.0f, 255.0f);
       img[(x + y*WIDTH)*3 + 1] = (unsigned char)min(green*255.0f, 255.0f);
       img[(x + y*WIDTH)*3 + 2] = (unsigned char)min(blue*255.0f, 255.0f);
