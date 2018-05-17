@@ -5,8 +5,10 @@
 #include <omp.h>
 
 #ifndef NTHREADS
-#define NTHREADS 4
+#define NTHREADS 8
 #endif
+
+
 
 #define min(a,b) (((a) < (b)) ? (a) : (b))
 
@@ -291,7 +293,7 @@ int main(int argc, char const *argv[])
 
 
   ray r;
-  #pragma omp parallel for private(r) schedule(dynamic)
+  #pragma omp parallel for num_threads(NTHREADS) private(r) schedule(dynamic)
   for (int y = 0; y < HEIGHT; ++y) {
     for (int x = 0; x < WIDTH; ++x) {
       int ID = omp_get_thread_num();
