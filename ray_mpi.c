@@ -5,7 +5,7 @@
 #include <mpi.h>
 
 #ifndef NMAQUINAS
-#define NMAQUINAS 16
+#define NMAQUINAS 4
 #endif
 
 
