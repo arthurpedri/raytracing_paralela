@@ -5,7 +5,7 @@
 #include <omp.h>
 
 #ifndef NTHREADS
-#define NTHREADS 4
+#define NTHREADS 1
 #endif
 
 #define min(a,b) (((a) < (b)) ? (a) : (b))
